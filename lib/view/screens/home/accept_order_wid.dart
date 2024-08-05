@@ -1,7 +1,9 @@
 import 'package:deliverypartner/config/const_string.dart';
 import 'package:deliverypartner/config/const_wid.dart';
+import 'package:deliverypartner/config/storage_utils.dart';
 import 'package:deliverypartner/controller/home_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_toastr/flutter_toastr.dart';
 import 'package:get/get.dart';
 
 class HomeAcceptOrderWid extends StatelessWidget {
@@ -62,29 +64,33 @@ class HomeAcceptOrderWid extends StatelessWidget {
             height: height - height * 0.25,
             margin: EdgeInsets.all(width * 0.01),
             padding: EdgeInsets.only(top: height * 0.1),
-            child: Column(
-              children: [
-                Padding(
-                  padding: EdgeInsets.only(bottom: height * 0.03),
-                  child: Text(
-                    "Customer contact details",
-                    style: styleC(
-                      ColorTheme.black,
-                      16,
-                      FontWeight.w600,
+            child: Obx(
+              () => Column(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(bottom: height * 0.03),
+                    child: Text(
+                      "Customer contact details",
+                      style: styleC(
+                        ColorTheme.black,
+                        16,
+                        FontWeight.w600,
+                      ),
                     ),
                   ),
-                ),
-                txtRow('Name', ': XXXXX'),
-                txtRow('Address', ': YYYYY'),
-                txtRow('Order Type', ': Cash on delivery'),
-                const Spacer(),
-                Image.asset(
-                  'assets/images/Motocycle.png',
-                  height: width * 0.8,
-                  width: width * 0.8,
-                ),
-              ],
+                  txtRow('Name',
+                      ': ${controller.listOrder.first.order.shippingAddress.customerName}'),
+                  txtRow('Address',
+                      ': ${controller.listOrder.first.order.shippingAddress.addressLine1}, ${controller.listOrder.first.order.shippingAddress.city}, ${controller.listOrder.first.order.shippingAddress.state}'),
+                  txtRow('Order Type', ': Cash on delivery'),
+                  const Spacer(),
+                  Image.asset(
+                    'assets/images/Motocycle.png',
+                    height: width * 0.8,
+                    width: width * 0.8,
+                  ),
+                ],
+              ),
             ),
           ),
           const Spacer(),
@@ -95,8 +101,16 @@ class HomeAcceptOrderWid extends StatelessWidget {
               children: [
                 InkWell(
                   onTap: () async {
-                    controller.screen.value = 'No Order';
-                    await controller.mapInit();
+                    dynamic result = await controller.orderAcceptOrDenied(
+                        context,
+                        int.parse(controller.listOrder.first.id),
+                        false);
+                    if (result == null) {
+                      FlutterToastr.show(result['message'].toString(), context);
+                    } else {
+                      controller.screen.value = 'No Order';
+                      await controller.mapInit();
+                    }
                   },
                   child: Container(
                     width: width * .4,
@@ -141,8 +155,22 @@ class HomeAcceptOrderWid extends StatelessWidget {
                 ),
                 InkWell(
                   onTap: () async {
-                    controller.screen.value = 'Map Screen';
-                    await controller.mapInit();
+                    dynamic result = await controller.orderAcceptOrDenied(
+                      context,
+                      int.parse(controller.listOrder.first.id),
+                      true,
+                    );
+                    if (result == null) {
+                      MySharedPreferences()
+                          .setOrderIdkey(controller.listOrder.first.id);
+                      FlutterToastr.show(result['message'].toString(), context);
+                    } else {
+                      FlutterToastr.show(result['message'].toString(), context);
+                      if (result['message'] != 'No Data') {
+                        controller.screen.value = 'Map Screen';
+                        await controller.mapInit();
+                      }
+                    }
                   },
                   child: Container(
                     width: width * .4,

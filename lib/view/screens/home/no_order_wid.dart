@@ -1,6 +1,7 @@
 import 'package:deliverypartner/config/const_string.dart';
 import 'package:deliverypartner/config/const_wid.dart';
 import 'package:deliverypartner/controller/home_controller.dart';
+import 'package:deliverypartner/models/order_models.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -63,8 +64,12 @@ class HomeNoOrderWid extends StatelessWidget {
           ),
           InkWell(
             onTap: () async {
-              controller.screen.value = 'Accept Page';
-              await controller.mapInit();
+              List<OrderContent> result =
+                  await controller.fetchMapOrders(context);
+              if (result.isNotEmpty) {
+                controller.screen.value = 'Accept Page';
+                await controller.mapInit();
+              }
             },
             child: Container(
               height: height * 0.07,

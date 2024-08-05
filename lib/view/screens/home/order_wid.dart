@@ -1,12 +1,17 @@
 import 'package:deliverypartner/config/const_string.dart';
 import 'package:deliverypartner/config/const_wid.dart';
 import 'package:deliverypartner/controller/home_controller.dart';
+import 'package:deliverypartner/models/order_models.dart';
 import 'package:flutter/material.dart';
 
 class OrderWid extends StatelessWidget {
-  final dynamic orderData;
+  final OrderContent orderData;
   final HomeController controller;
-  const OrderWid({super.key, this.orderData, required this.controller});
+  const OrderWid({
+    super.key,
+    required this.orderData,
+    required this.controller,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +32,7 @@ class OrderWid extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Order Id : ${orderData['id']}",
+                  "Order Id : ${orderData.orderNumber}",
                   style: styleC(
                     ColorTheme.black,
                     12,
@@ -35,7 +40,7 @@ class OrderWid extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  "Order Date : ${orderData['date']}",
+                  "Order Date : ${orderData.orderedDate}",
                   style: styleC(
                     ColorTheme.black,
                     12,
@@ -43,7 +48,7 @@ class OrderWid extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  "Order Time : ${orderData['time']}",
+                  "Order Time : -",
                   style: styleC(
                     ColorTheme.black,
                     12,
@@ -79,7 +84,7 @@ class OrderWid extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  "Order Type : ${orderData['orderType']}",
+                  "Order Type : ${orderData.paymentType}",
                   style: styleC(
                     ColorTheme.black,
                     12,
@@ -87,7 +92,7 @@ class OrderWid extends StatelessWidget {
                   ),
                 ),
                 const Spacer(),
-                orderData['status'] == 'delivered'
+                orderData.orderStatus == 'delivered'
                     ? Padding(
                         padding: const EdgeInsets.only(bottom: 13),
                         child: Row(

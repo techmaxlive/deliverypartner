@@ -1,12 +1,17 @@
 import 'package:deliverypartner/config/const_string.dart';
 import 'package:deliverypartner/config/const_wid.dart';
+import 'package:deliverypartner/config/storage_utils.dart';
+import 'package:deliverypartner/models/order_models.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_toastr/flutter_toastr.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class HomeController extends GetxController {
+  final client = Dio();
   var loadingRefresh = false.obs;
   late LatLng _gpsactual;
   var zoomlvl = 18.0;
@@ -24,48 +29,7 @@ class HomeController extends GetxController {
 
   GoogleMapController get mapController => _mapController;
   var screen = "No Order".obs;
-
-  var smapleOrderLi = [
-    {
-      "id": "123456",
-      "date": "09/09/2009",
-      "time": "09:09 AM",
-      "orderType": "COD",
-      'status': 'created',
-      "name": "HariBhavan",
-      "address": "Gandhipuram, Coimbatore",
-      "foodType": 'Briyani',
-      "addressRes": "XYZ, 00000"
-    },
-    {
-      "id": "123456",
-      "date": "09/09/2009",
-      "time": "09:09 AM",
-      "orderType": "COD",
-      'status': 'created',
-      "name": "Ariya Bhavan",
-      "address": "Gandhipuram, Coimbatore",
-      "foodType": 'Briyani',
-      "addressRes": "XYZ, 00000"
-    },
-    {
-      "id": "123456",
-      "date": "09/09/2009",
-      "time": "09:09 AM",
-      "orderType": "COD",
-      'status': 'created',
-      "name": "SSH",
-      "address": "Gandhipuram, Coimbatore",
-      "foodType": 'Briyani',
-      "addressRes": "XYZ, 00000"
-    }
-  ];
-  bool orderStatus() {
-    for (var i in smapleOrderLi) {
-      return !(i['status'] == 'created');
-    }
-    return true;
-  }
+  var listOrder = <OrderContent>[].obs;
 
   @override
   void onInit() {
@@ -74,8 +38,12 @@ class HomeController extends GetxController {
   }
 
   Future mapInit() async {
+    String orderId = await MySharedPreferences().getOrderIdkey();
     if (screen.value == 'Map Screen') {
       getUserLocation();
+    } else if (orderId != 'NA') {
+      screen.value = 'List Order';
+      await fetchOrdersLi(orderId);
     }
   }
 
@@ -122,17 +90,6 @@ class HomeController extends GetxController {
     _mapController = controller;
   }
 
-  // void _addMarker(LatLng location, String address) {
-  //   _markers.add(
-  //     Marker(
-  //       markerId: MarkerId(location.toString()),
-  //       position: location,
-  //       infoWindow: InfoWindow(title: address, snippet: "go here"),
-  //       icon: BitmapDescriptor.defaultMarker,
-  //     ),
-  //   );
-  // }
-
   void onCameraMove(CameraPosition position) async {
     position = CameraPosition(
       target: initialPos,
@@ -176,9 +133,6 @@ class HomeController extends GetxController {
           ),
           InkWell(
             onTap: () async {
-              for (var i in smapleOrderLi) {
-                i['status'] = 'delivered';
-              }
               screen.value = 'List Order';
               await mapInit();
               Get.back();
@@ -220,5 +174,77 @@ class HomeController extends GetxController {
         return alert;
       },
     );
+  }
+
+  Future<List<OrderContent>> fetchMapOrders(BuildContext context) async {
+    String token = await MySharedPreferences().getTokenkey();
+    listOrder.value = [];
+    if (token == 'NA') {
+      FlutterToastr.show("Invalid Token", context);
+      return [];
+    } else {
+      client.options.headers = {
+        'accept': '*/*',
+        'Authorization': token,
+      };
+      final response = await client.get(ConstString.orderMaping);
+      if (response.statusCode == 200) {
+        FlutterToastr.show(response.data['message'].toString(), context);
+        if (response.data['content'] != null) {
+          listOrder.add(OrderContent.fromJson(response.data['content']));
+        }
+
+        return listOrder;
+      } else {
+        throw [];
+      }
+    }
+  }
+
+  Future<dynamic> orderAcceptOrDenied(
+      BuildContext context, int orderId, bool isAccept) async {
+    String token = await MySharedPreferences().getTokenkey();
+    if (token == 'NA') {
+      FlutterToastr.show("Invalid Token", context);
+      return null;
+    } else {
+      client.options.headers = {
+        'accept': '*/*',
+        'Authorization': token,
+      };
+      final response =
+          await client.put('${ConstString.orderConfirm}$isAccept/$orderId');
+      if (response.statusCode == 200) {
+        return response.data;
+      } else {
+        return null;
+      }
+    }
+  }
+
+  Future<List<OrderContent>> fetchOrdersLi(
+    String orderId,
+  ) async {
+    String token = await MySharedPreferences().getTokenkey();
+    listOrder.value = [];
+    if (token == 'NA') {
+      return [];
+    } else {
+      client.options.headers = {
+        'accept': '*/*',
+        'Authorization': token,
+      };
+      print(ConstString.orderList + orderId);
+      final response = await client.get(ConstString.orderList + orderId);
+      if (response.statusCode == 200) {
+        if (response.data['content'] != null) {
+          listOrder.add(OrderContent.fromJson(response.data['content']));
+        }
+
+        return listOrder;
+      } else {
+        throw [];
+      }
+    }
   }
 }

@@ -172,91 +172,94 @@ class HomeOrderMapWid extends StatelessWidget {
                       )
                     ],
                   ),
-                  Center(
-                    child: SizedBox(
-                      width: MediaQuery.of(context).size.width - 20,
-                      height: 63,
-                      child: SlideAction(
-                        borderRadius: 10,
-                        elevation: 0,
-                        innerColor: ColorTheme.green,
-                        outerColor: ColorTheme.green.withOpacity(.43),
-                        reversed: false,
-                        sliderButtonIcon: Icon(
-                          Icons.keyboard_double_arrow_right,
-                          size: 20,
-                          color: ColorTheme.white,
-                        ),
-                        text: !controller.orderStatus()
-                            ? "Swipe right after Order Pickup"
-                            : "Swipe right after order deliver",
-                        textStyle: styleC(
-                          ColorTheme.black.withOpacity(.5),
-                          16,
-                          FontWeight.w600,
-                        ),
-                        onSubmit: () async {
-                          if (controller.orderStatus()) {
-                            controller.showAlertDialog(context);
-                          } else {
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) =>
-                                  CupertinoAlertDialog(
-                                title: Text(
-                                  "Confirm Order Pick-Up",
-                                  style: styleC(
-                                    ColorTheme.black,
-                                    16,
-                                    FontWeight.w500,
-                                  ),
-                                ),
-                                content: Text(
-                                  "Total 3 Orders Pick-Up",
-                                  style: styleC(
-                                    ColorTheme.black,
-                                    14,
-                                    FontWeight.w500,
-                                  ),
-                                ),
-                                actions: <Widget>[
-                                  CupertinoDialogAction(
-                                    isDefaultAction: true,
-                                    onPressed: () {
-                                      Get.back();
-                                    },
-                                    child: Text(
-                                      "Decline",
-                                      style: styleC(
-                                        ColorTheme.primary,
-                                        16,
-                                        FontWeight.w400,
-                                      ),
+                  Obx(
+                    () => Center(
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width - 20,
+                        height: 63,
+                        child: SlideAction(
+                          borderRadius: 10,
+                          elevation: 0,
+                          innerColor: ColorTheme.green,
+                          outerColor: ColorTheme.green.withOpacity(.43),
+                          reversed: false,
+                          sliderButtonIcon: Icon(
+                            Icons.keyboard_double_arrow_right,
+                            size: 20,
+                            color: ColorTheme.white,
+                          ),
+                          text: controller.listOrder.first.order.orderStatus
+                                      .toString() ==
+                                  ''
+                              ? "Swipe right after Order Pickup"
+                              : "Swipe right after order deliver",
+                          textStyle: styleC(
+                            ColorTheme.black.withOpacity(.5),
+                            16,
+                            FontWeight.w600,
+                          ),
+                          onSubmit: () async {
+                            if (controller.listOrder.first.order.orderStatus
+                                    .toString() ==
+                                '') {
+                              controller.showAlertDialog(context);
+                            } else {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) =>
+                                    CupertinoAlertDialog(
+                                  title: Text(
+                                    "Confirm Order Pick-Up",
+                                    style: styleC(
+                                      ColorTheme.black,
+                                      16,
+                                      FontWeight.w500,
                                     ),
                                   ),
-                                  CupertinoDialogAction(
-                                    onPressed: () async {
-                                      for (var i in controller.smapleOrderLi) {
-                                        i['status'] = 'accepted';
-                                      }
-                                      controller.screen.value = 'List Order';
-                                      await controller.mapInit();
-                                      Get.back();
-                                    },
-                                    child: Text(
-                                      "Confirm",
-                                      style: styleC(
-                                        ColorTheme.primary,
-                                        16,
-                                        FontWeight.w400,
+                                  content: Text(
+                                    "Total 3 Orders Pick-Up",
+                                    style: styleC(
+                                      ColorTheme.black,
+                                      14,
+                                      FontWeight.w500,
+                                    ),
+                                  ),
+                                  actions: <Widget>[
+                                    CupertinoDialogAction(
+                                      isDefaultAction: true,
+                                      onPressed: () {
+                                        Get.back();
+                                      },
+                                      child: Text(
+                                        "Decline",
+                                        style: styleC(
+                                          ColorTheme.primary,
+                                          16,
+                                          FontWeight.w400,
+                                        ),
                                       ),
                                     ),
-                                  )
-                                ],
-                              ),
-                            );
-                          }
-                        },
+                                    CupertinoDialogAction(
+                                      onPressed: () async {
+                                        controller.screen.value = 'List Order';
+                                        await controller.mapInit();
+                                        Get.back();
+                                      },
+                                      child: Text(
+                                        "Confirm",
+                                        style: styleC(
+                                          ColorTheme.primary,
+                                          16,
+                                          FontWeight.w400,
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              );
+                            }
+                          },
+                        ),
                       ),
                     ),
                   ),
@@ -286,7 +289,7 @@ class HomeOrderMapWid extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            "Name: ${controller.smapleOrderLi[0]['name']}",
+                            "Name: ${controller.listOrder.first.order.shippingAddress.customerName}",
                             style: styleC(
                               ColorTheme.black,
                               16,
@@ -294,7 +297,7 @@ class HomeOrderMapWid extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            "Address: ${controller.smapleOrderLi[0]['address']}",
+                            "Address: ${controller.listOrder.first.order.shippingAddress.addressLine1}, ${controller.listOrder.first.order.shippingAddress.city},  ${controller.listOrder.first.order.shippingAddress.state}",
                             style: styleC(
                               ColorTheme.black,
                               16,
@@ -302,7 +305,7 @@ class HomeOrderMapWid extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            "Order Type: ${controller.smapleOrderLi[0]['foodType']}",
+                            "Order Type: ${controller.listOrder.first.paymentType}",
                             style: styleC(
                               ColorTheme.black,
                               16,
@@ -310,14 +313,14 @@ class HomeOrderMapWid extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            "Address : ${controller.smapleOrderLi[0]['addressRes']}",
+                            "Address : ${controller.listOrder.first.order.billingAddress.addressLine1}, ${controller.listOrder.first.order.billingAddress.city}, ${controller.listOrder.first.order.billingAddress.state}",
                             style: styleC(
                               ColorTheme.black,
                               16,
                               FontWeight.w600,
                             ),
                           ),
-                          controller.smapleOrderLi.length > 1
+                          controller.listOrder.length > 1
                               ? Center(
                                   child: Container(
                                     margin: const EdgeInsets.symmetric(
@@ -382,10 +385,10 @@ class HomeOrderMapWid extends StatelessWidget {
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
-                                    children: controller.smapleOrderLi
+                                    children: controller.listOrder
                                         .sublist(
                                           1,
-                                          controller.smapleOrderLi.length,
+                                          controller.listOrder.length,
                                         )
                                         .map(
                                           (e) => Container(
@@ -405,7 +408,7 @@ class HomeOrderMapWid extends StatelessWidget {
                                                   CrossAxisAlignment.start,
                                               children: [
                                                 Text(
-                                                  "Name: ${e['name']}",
+                                                  "Name: ${controller.listOrder.first.order.shippingAddress.customerName}",
                                                   style: styleC(
                                                     ColorTheme.black,
                                                     16,
@@ -413,7 +416,7 @@ class HomeOrderMapWid extends StatelessWidget {
                                                   ),
                                                 ),
                                                 Text(
-                                                  "Address: ${e['address']}",
+                                                  "Address: ${controller.listOrder.first.order.shippingAddress.addressLine1}",
                                                   style: styleC(
                                                     ColorTheme.black,
                                                     16,
@@ -421,21 +424,21 @@ class HomeOrderMapWid extends StatelessWidget {
                                                   ),
                                                 ),
                                                 Text(
-                                                  "Order Type: ${e['foodType']}",
+                                                  "Order Type: ${controller.listOrder.first.order.paymentType}",
                                                   style: styleC(
                                                     ColorTheme.black,
                                                     16,
                                                     FontWeight.w600,
                                                   ),
                                                 ),
-                                                Text(
-                                                  "Address : ${e['addressRes']}",
-                                                  style: styleC(
-                                                    ColorTheme.black,
-                                                    16,
-                                                    FontWeight.w600,
-                                                  ),
-                                                ),
+                                                // Text(
+                                                //   "Address : ${e['addressRes']}",
+                                                //   style: styleC(
+                                                //     ColorTheme.black,
+                                                //     16,
+                                                //     FontWeight.w600,
+                                                //   ),
+                                                // ),
                                               ],
                                             ),
                                           ),

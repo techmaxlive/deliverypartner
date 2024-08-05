@@ -5,6 +5,7 @@ class MySharedPreferences {
   static const themekey = 'themekey';
   static const emailId = 'emailId';
   static const content = 'content';
+  static const contentOrderId = 'contentOrderId';
   static const token = 'token';
   static const isLogin = 'isLogin';
   Future<void> initSharedPreferences() async {
@@ -59,6 +60,16 @@ class MySharedPreferences {
   Future<String> getTokenkey() async {
     await initSharedPreferences();
     return _prefs!.getString(token) ?? 'NA';
+  }
+
+  setOrderIdkey(String value) async {
+    await initSharedPreferences();
+    return _prefs!.setString(contentOrderId, value);
+  }
+
+  Future<String> getOrderIdkey() async {
+    await initSharedPreferences();
+    return _prefs!.getString(contentOrderId) ?? 'NA';
   }
 
 // clean  //

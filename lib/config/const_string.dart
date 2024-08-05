@@ -30,6 +30,11 @@ class ConstString {
   static var mapkey = "AIzaSyDMibHlhgviqy5wP43TFyhty0R3VAdzdmM";
 
   static var root = "http://192.168.11.145:8082/security/registration";
+  static var ip = "http://192.168.11.145:8081";
   static var createotp = '$root/deliveryAgent/sendOtp';
   static var validateotp = '$root/deliverAgent/otp/validation';
+  static var orderMaping =
+      '$ip/admin-rx/deliveryuser/v1/assigned/orders/deliverUser';
+  static var orderConfirm = '$ip/admin-rx/deliveryuser/v1/orders/assign/';
+  static var orderList = '$ip/admin-rx/order/v1/order/';
 }

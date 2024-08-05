@@ -13,6 +13,7 @@ class SplashController extends GetxController {
     try {
       await Future.delayed(const Duration(seconds: 3));
       loading(false);
+      MySharedPreferences().setOrderIdkey('4');
       if (await MySharedPreferences().getIsLogin()) {
         Get.offAll(const HomeScreen());
       } else {

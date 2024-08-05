@@ -30,8 +30,6 @@ class LoginController extends GetxController {
       );
       if (response.statusCode == 200 && response.data['status'] == 'success') {
         var result = response.data;
-        print(result);
-        MySharedPreferences().setEmailkey(emailController.text);
         MySharedPreferences().setContentkey(result['content']);
         showToast(result['message'], context);
         loadingROTP(false);
@@ -63,7 +61,8 @@ class LoginController extends GetxController {
         data: data,
       );
       if (response.statusCode == 200 && response.data['status'] == 'success') {
-        MySharedPreferences().setEmailkey(response.data['content']['token']);
+        MySharedPreferences().setTokenkey(response.data['content']['token']);
+        MySharedPreferences().setEmailkey(email);
         MySharedPreferences().setLogin(response.data['status'] == 'success');
         loadingVerify(false);
         var result = response.data;
